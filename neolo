@@ -1,0 +1,80 @@
+#!/usr/bin/env python3
+#
+# script commissioned by Saulo 
+# intended to identify "neologisms" in a text by 
+# searching through a given dictionary/wordlist/othertext 
+#
+# we also compute various statistics on the text and include them in the result
+
+# arg1 is the text to be analysed
+# arg2 .. argN are texts to be compared against
+
+import sys
+import re
+from collections import Counter
+
+PUNC_RE = re.compile('[_+\-\(\)\.,:;!?\'"]')
+
+def usage():
+  """Print a helpful usage message."""
+  print("Usage:\nneolo TEXT DICT1 [DICT2 ...]")
+
+def tokenize(f):
+  """Tokenize all the lines in a file"""
+  # TODO need a more robust, crosslingual tokenizer
+  return [PUNC_RE.sub(" ",l) for l in f]
+
+def stem(f):
+  """Stem, downcase all the lines in a file"""
+  # TODO: still need a stem method (this is language dependent!
+  return [l.lower() for l in f]
+
+def count(f):
+  """Return the words of f as a dictionary with keys as wordforms and
+  counts as values"""
+  return Counter(f)
+  
+
+
+if __name__ in  "__main__":
+  if not len(sys.argv) > 2:
+    usage()
+    sys.exit(1)
+  text = open(sys.argv[1]).readlines()
+  dicts = [ open(f).readlines() for f in sys.argv[2:] ]
+  print("Tokenizing, downcasing, stemming text:",sys.argv[1],"...",end=" ")
+  sys.stdout.flush()
+  clean_text = stem(tokenize(text))
+  print("done.")
+
+  print("Tokenizing, downcasing, stemming dict files:",
+        sys.argv[2:],"...",end=" ")
+  sys.stdout.flush()
+  clean_dicts = [ stem(tokenize(d)) for d in dicts ] 
+  print("done.")
+
+  # get the wordtypes and counts 
+  print("Counting and sorting words in text:",sys.argv[1],"...",end="")
+  sys.stdout.flush()
+  text_words = count([w for l in clean_text for w in l.split()])
+  print("done.")
+  print("Counting and sorting words in dictonaries:",sys.argv[2:],"...",end="")
+  sys.stdout.flush()
+  dict_words = count([w for l in 
+                     [line for clean_d in clean_dicts for line in clean_d] 
+                     for w in l.split()])
+  print("done.")
+
+  # print neolo
+  print("Neologism list:")
+  neolo = 0
+  for w in text_words:
+    if not w in dict_words:
+      print(w)
+      neolo+=1
+
+  print("\nStatistics:")
+  print("-----------")
+  print("Text size:",str(sum(text_words.values())),"tokens in",str(len(text_words)),"types.")
+  print("Neologisms: ",str(neolo), "found in",str(len(clean_dicts)),"dictionaries")
+  print("Dictionaries contained",str(sum(dict_words.values())),"tokens in",str(len(dict_words)),"types.")
