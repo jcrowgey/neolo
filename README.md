@@ -1,12 +1,25 @@
 neolo
 =====
 
-Text Analysis Software for Saulo Brandão
+Text Analysis Software for Saulo Brandão.  Developed by Joshua Crowgey
+in summer 2014.
 
-Usage:
+`usage: neolo [-h] [--dicts DICT [DICT ...]] [--mltd] [--msttr] [--hdd]
+             [--verbose]
+             TEXT
 
-$./neolo TEXT DICT1 [DICT2 ...]
+Extract lexical statistics from a text file.
 
-The default usage for neolo at present is to compare a text to a set of
-"dictionaries" and print a list of "neologisms" based on whether or not a word 
-the text under analysis appears in any of the "dictionaries".
+positional arguments:
+  TEXT                  the text you want to investigate
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --dicts DICT [DICT ...]
+                        a list of reference texts to compute neologism count
+  --mltd                measure of lexical texual diversity
+  --msttr               mean segmental type-token ratio
+  --hdd                 HD-D probabilistic TTR
+  --verbose, -v         increase the verbosty (can be repeated: -vvv)
+
+Select one or more statistics via the above options.`
