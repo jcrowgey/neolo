@@ -4,7 +4,8 @@ neolo
 Text Analysis Software for Saulo Brandão.  Developed by Joshua Crowgey
 in summer 2014.
 
-`usage: neolo [-h] [--dicts DICT [DICT ...]] [--mltd] [--msttr] [--hdd]
+```
+usage: neolo [-h] [--dicts DICT [DICT ...]] [--mltd] [--msttr] [--hdd]
              [--verbose]
              TEXT
 
@@ -22,4 +23,17 @@ optional arguments:
   --hdd                 HD-D probabilistic TTR
   --verbose, -v         increase the verbosty (can be repeated: -vvv)
 
-Select one or more statistics via the above options.`
+Select one or more statistics via the above options.
+```
+
+Neologism Count
+---------------
+
+MLTD
+----
+
+MSTTR
+-----
+
+HD-D
+----
