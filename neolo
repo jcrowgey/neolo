@@ -14,10 +14,10 @@ import re
 from collections import Counter
 from math import factorial as fact
 from math import sqrt
-from decimal import *
 from functools import reduce
 import operator
 import argparse
+import codecs
 
 PUNC_RE = re.compile('[_+\-\(\)\.,:;!?\'"]')
 
@@ -225,11 +225,28 @@ def setup_argparse():
       default=1, help='increase the verbosty (can be repeated: -vvv)')
   return ap
 
+def try_open(filename):
+  """Try several encodings and return the lines from the first one 
+     that seems to work"""
+  text = ''
+  encodings = ['utf-8', 'latin1', 'windows-1250', 'windows-1252']
+  for e in encodings:
+    try:
+      fh = codecs.open(filename, 'r', encoding=e)
+      text = fh.readlines()
+    except UnicodeDecodeError:
+      print('WARNING: Got unicode error with %s , trying different encoding' % e,
+             file=sys.stderr)
+    else:
+      print('Opening',filename,'with encoding:  %s ' % e, file=sys.stderr)
+      break 
+  return text
+
 if __name__ in  "__main__":
   ap = setup_argparse()
   args = ap.parse_args()
+  text = try_open(args.text)
 
-  text = open(args.text).readlines()
   #TODO convert to logging messages, synchronize with verbosity
   print("Tokenizing, downcasing, stemming text:",args.text,"...",end=" ", file=sys.stderr)
   sys.stderr.flush()
@@ -240,10 +257,12 @@ if __name__ in  "__main__":
   sys.stderr.flush()
   text_words = count([w for l in clean_text for w in l.split()])
   print("done.", file=sys.stderr)
+  hapax = [ w for w in text_words if text_words[w] == 1 ]
+
 
   dicts = []
   if args.dicts:
-    dicts = [ open(f).readlines() for f in args.dicts ]
+    dicts = [ try_open(f) for f in args.dicts ]
     print("Tokenizing, downcasing, stemming dict files:",
           args.dicts,"...",end=" ", file=sys.stderr)
     sys.stderr.flush()
@@ -260,17 +279,25 @@ if __name__ in  "__main__":
     # print neolo
     print("Neologism list:")
     neolo = 0
-    for w in text_words:
+    for w in sorted(text_words):
       if not w in dict_words:
         print(w)
         neolo+=1
 
   print("\nStatistics:")
   print("-----------")
-  print("Text size:",str(sum(text_words.values())),
+  tokens = sum(text_words.values())
+  print("Text size:",str(tokens),
         "tokens in",str(len(text_words)),"types.")
+
+  ## Saulo's requested default stats
+  print("Number of hapax legomena:",len(hapax))      
+  print("TTR (type-token ratio):",float(len(text_words))/float(tokens))
+  print("HTR (hapax-token ratio):",float(len(hapax))/float(tokens))
+  print("HTyR (hapax-type ratio):",float(len(hapax))/float(len(text_words)))
+
   if args.dicts:
-    print("Neologisms: ",str(neolo), "type not found in",
+    print("Neologisms: ",str(neolo), "types not found in",
           str(len(clean_dicts)),"dictionaries")
     print("Dictionaries contained",str(sum(dict_words.values())),
           "tokens in",str(len(dict_words)),"types.")
