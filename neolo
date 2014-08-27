@@ -208,6 +208,14 @@ def mltd(text):
       seg = []
   return float(toks)/float(seg_n)
 
+def wordlen_dist(text_words):
+  maxlen = max([len(w) for w in text_words])
+  print("\nWord-length distribution:")
+  print("Length: Count\n-------------")
+  for i in range(1,maxlen+1):
+    print(str(i)+":",len([w for w in text_words if len(w) == i]))
+  print("-------------")
+
 def setup_argparse():
   ap = argparse.ArgumentParser(
       description="Extract lexical statistics from a text file.",
@@ -223,6 +231,8 @@ def setup_argparse():
   ap.add_argument('--hdd', action="store_true", help="HD-D probabilistic TTR")
   ap.add_argument('--verbose', '-v', action='count', dest='verbosity',
       default=1, help='increase the verbosty (can be repeated: -vvv)')
+  ap.add_argument('--wordlen', '-w', action="store_true",
+      help="print the distribution of words by length")
   return ap
 
 def try_open(filename):
@@ -315,3 +325,5 @@ if __name__ in  "__main__":
     print("HD-D...",end="")
     sys.stdout.flush()
     print(hdd(text_words))
+  if args.wordlen:
+    wordlen_dist(text_words)
