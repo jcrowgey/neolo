@@ -233,6 +233,8 @@ def setup_argparse():
       default=1, help='increase the verbosty (can be repeated: -vvv)')
   ap.add_argument('--wordlen', '-w', action="store_true",
       help="print the distribution of words by length")
+  ap.add_argument('--wordtypes', '-t', action="store_true",
+      help="print the distribution of wordtypes by count")
   return ap
 
 def try_open(filename):
@@ -327,3 +329,7 @@ if __name__ in  "__main__":
     print(hdd(text_words))
   if args.wordlen:
     wordlen_dist(text_words)
+  if args.wordtypes:
+    print("wordtype list coming soon!")
+    # for t in text_words: 
+    #  print(text_words[t],t) 
