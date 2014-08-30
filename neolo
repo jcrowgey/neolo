@@ -234,7 +234,7 @@ def setup_argparse():
   ap.add_argument('--wordlen', '-w', action="store_true",
       help="print the distribution of words by length")
   ap.add_argument('--wordtypes', '-t', action="store_true",
-      help="print the distribution of wordtypes by count")
+      help="print the distribution of wordtypes (unigrams) by count")
   return ap
 
 def try_open(filename):
@@ -330,6 +330,7 @@ if __name__ in  "__main__":
   if args.wordlen:
     wordlen_dist(text_words)
   if args.wordtypes:
-    print("wordtype list coming soon!")
-    # for t in text_words: 
-    #  print(text_words[t],t) 
+    print("\nWordtypes and frequencies (unigram model):")
+    print("------------------------------------------")
+    for t in sorted(text_words, key=text_words.get, reverse=True): 
+      print(text_words[t],t) 
