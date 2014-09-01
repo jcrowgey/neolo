@@ -19,7 +19,7 @@ import operator
 import argparse
 import codecs
 
-PUNC_RE = re.compile('[_+\-\(\)\.,:;!?\'"]')
+PUNC_RE = re.compile('[_+\-\(\)\.,:;!?\'"\[\]]')
 
 # porter stemmer
 
