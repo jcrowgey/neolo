@@ -47,9 +47,11 @@ Everywhere that mary went,
 the lamb was sure to go.
 ```
 
-Supposing you're on a UNIX-like system, there is a list of English words
-stored in /usr/share/dict/words that you can use as a reference.  You
-can ask neolo to check mary.txt for neologisms using the --dicts option.
+Supposing you're using the debian distro of GNU/Linux, there is a list of 
+English words stored in /usr/share/dict/words that you can use as a 
+reference.  You can ask neolo to check mary.txt for neologisms using 
+the --dicts option.  The --dicts option takes a list of one ore more filenames
+to use as references in calculating neologisms.
 
 ```
 user@computer:~/src/neolo$ ./neolo texts/mary.txt --dicts /usr/share/dict/words
@@ -77,7 +79,7 @@ wordlist file, so neolo says "Neolgisms: 0 types not found in 1 dictionaries".
 
 However, if you edit mary.txt such that instead of fleece, the poem's second
 line says ``Her pleece was white as snow.'', now neolo prints a neologism list
-along with it's regular output.
+along with its regular output.
 
 ```
 user@computer:~/src/neolo$ ./neolo texts/mary.txt --dicts /usr/share/dict/words
