@@ -235,6 +235,8 @@ def setup_argparse():
       help="print the distribution of words by length")
   ap.add_argument('--wordtypes', '-t', action="store_true",
       help="print the distribution of wordtypes (unigrams) by count")
+  ap.add_argument('--hapax', '-x', action="store_true",
+      help="print the list of hapax legomena")
   return ap
 
 def try_open(filename):
@@ -334,3 +336,8 @@ if __name__ in  "__main__":
     print("------------------------------------------")
     for t in sorted(text_words, key=text_words.get, reverse=True): 
       print(text_words[t],t) 
+  if args.hapax:
+    print("\nHapax legomena:")
+    print("----------------")
+    for w in sorted(hapax):
+      print(w)
