@@ -18,7 +18,7 @@ optional arguments:
   -h, --help            show this help message and exit
   --dicts DICT [DICT ...]
                         a list of reference texts to compute neologism count
-  --mltd                measure of lexical texual diversity
+  --mltd                measure of lexical textual diversity
   --msttr               mean segmental type-token ratio
   --hdd                 HD-D probabilistic TTR
   --verbose, -v         increase the verbosty (can be repeated: -vvv)
