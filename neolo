@@ -21,8 +21,6 @@ import codecs
 
 PUNC_RE = re.compile('[_+\-\(\)\.,:;!?\'"\[\]]')
 
-# porter stemmer
-
 def usage():
   """Print a helpful usage message."""
   print("Usage:\nneolo TEXT DICT1 [DICT2 ...]")
@@ -225,7 +223,7 @@ def setup_argparse():
   ap.add_argument('--dicts', metavar="DICT", nargs='+',
       help="a list of reference texts to compute neologism count")
   ap.add_argument('--mltd', action="store_true",
-      help="measure of lexical texual diversity")
+      help="measure of lexical textual diversity")
   ap.add_argument('--msttr', action="store_true",
       help="mean segmental type-token ratio")
   ap.add_argument('--hdd', action="store_true", help="HD-D probabilistic TTR")
@@ -334,8 +332,8 @@ if __name__ in  "__main__":
   if args.wordtypes:
     print("\nWordtypes and frequencies (unigram model):")
     print("------------------------------------------")
-    for t in sorted(text_words, key=text_words.get, reverse=True): 
-      print(text_words[t],t) 
+    for t in sorted(text_words.items(), key=lambda x: (-x[1],x[0])):
+      print(t[1],t[0])
   if args.hapax:
     print("\nHapax legomena:")
     print("----------------")
