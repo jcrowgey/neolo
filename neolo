@@ -19,7 +19,7 @@ import operator
 import argparse
 import codecs
 
-PUNC_RE = re.compile('[_+\-\(\)\.,:;!?\'"\[\]]')
+PUNC_RE = re.compile('([_+\-\(\)\.,:;!?\'"\[\]])')
 
 def usage():
   """Print a helpful usage message."""
@@ -128,7 +128,7 @@ def hypergeom_0(r,n,N):
 def tokenize(f):
   """Tokenize all the lines in a file"""
   # TODO need a more robust, crosslingual tokenizer
-  return [PUNC_RE.sub(" ",l) for l in f]
+  return [PUNC_RE.sub(" \g<0> ",l) for l in f]
 
 def stem(f):
   """Stem, downcase all the lines in a file"""
