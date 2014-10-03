@@ -65,7 +65,6 @@ def lemma2(X):
     exp[p] = lemma1(X,p)
   return exp
 
-
 def erathos(N):
   """Return all prime numbers <= N"""
   if N < 2: return []
@@ -130,7 +129,7 @@ def tokenize(f):
   # TODO need a more robust, crosslingual tokenizer
   return [PUNC_RE.sub(" \g<0> ",l) for l in f]
 
-def stem(f):
+def downcase(f):
   """Stem, downcase all the lines in a file"""
   # TODO: still need a stem method (this is language dependent!
   return [l.lower() for l in f]
@@ -214,6 +213,14 @@ def wordlen_dist(text_words):
     print(str(i)+":",len([w for w in text_words if len(w) == i]))
   print("-------------")
 
+def punc_ratio(text_words):
+  pcount=0
+  for t in text_words:
+    if PUNC_RE.match(t):
+      pcount+=text_words[t]
+  return pcount/sum(text_words.values())
+      
+
 def setup_argparse():
   ap = argparse.ArgumentParser(
       description="Extract lexical statistics from a text file.",
@@ -227,6 +234,7 @@ def setup_argparse():
   ap.add_argument('--msttr', action="store_true",
       help="mean segmental type-token ratio")
   ap.add_argument('--hdd', action="store_true", help="HD-D probabilistic TTR")
+  #TODO implement verbosity!!
   ap.add_argument('--verbose', '-v', action='count', dest='verbosity',
       default=1, help='increase the verbosty (can be repeated: -vvv)')
   ap.add_argument('--wordlen', '-w', action="store_true",
@@ -235,6 +243,8 @@ def setup_argparse():
       help="print the distribution of wordtypes (unigrams) by count")
   ap.add_argument('--hapax', '-x', action="store_true",
       help="print the list of hapax legomena")
+  ap.add_argument('--punc-ratio', '-p', action="store_true",
+      help="print the ratio of punctuation tokens out of total tokens")
   return ap
 
 def try_open(filename):
@@ -260,9 +270,9 @@ if __name__ in  "__main__":
   text = try_open(args.text)
 
   #TODO convert to logging messages, synchronize with verbosity
-  print("Tokenizing, downcasing, stemming text:",args.text,"...",end=" ", file=sys.stderr)
+  print("Tokenizing, downcasing, text:",args.text,"...",end=" ", file=sys.stderr)
   sys.stderr.flush()
-  clean_text = stem(tokenize(text))
+  clean_text = downcase(tokenize(text))
   print("done.", file=sys.stderr)
   # get the wordtypes and counts
   print("Counting and sorting words in text:",args.text,"...",end="", file=sys.stderr)
@@ -275,10 +285,10 @@ if __name__ in  "__main__":
   dicts = []
   if args.dicts:
     dicts = [ try_open(f) for f in args.dicts ]
-    print("Tokenizing, downcasing, stemming dict files:",
+    print("Tokenizing, downcasing, dict files:",
           args.dicts,"...",end=" ", file=sys.stderr)
     sys.stderr.flush()
-    clean_dicts = [ stem(tokenize(d)) for d in dicts ]
+    clean_dicts = [ downcase(tokenize(d)) for d in dicts ]
     print("done.", file=sys.stderr)
     print("Counting and sorting words in dictonaries:",args.dicts,"...",
           end="", file=sys.stderr)
@@ -339,3 +349,5 @@ if __name__ in  "__main__":
     print("----------------")
     for w in sorted(hapax):
       print(w)
+  if args.punc_ratio:
+    print("\nPunctuation ratio:",punc_ratio(text_words))
