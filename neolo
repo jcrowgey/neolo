@@ -1,13 +1,11 @@
 #!/usr/bin/env python3
 #
 # script commissioned by Saulo
-# intended to identify "neologisms" in a text by
+# originally intended to identify "neologisms" in a text by
 # searching through a given dictionary/wordlist/othertext
 #
-# we also compute various statistics on the text and include them in the result
-
-# arg1 is the text to be analysed
-# arg2 .. argN are texts to be compared against
+# now supports many other statistical operations as well
+#
 
 import sys
 import re
@@ -18,12 +16,9 @@ from functools import reduce
 import operator
 import argparse
 import codecs
+import logging
 
 PUNC_RE = re.compile('([_+\-\(\)\.,:;!?\'"\[\]])')
-
-def usage():
-  """Print a helpful usage message."""
-  print("Usage:\nneolo TEXT DICT1 [DICT2 ...]")
 
 def lemma1(N,p):
   """return a value for p which is the sum of int(n/p^i) for all i where
@@ -234,7 +229,6 @@ def setup_argparse():
   ap.add_argument('--msttr', action="store_true",
       help="mean segmental type-token ratio")
   ap.add_argument('--hdd', action="store_true", help="HD-D probabilistic TTR")
-  #TODO implement verbosity!!
   ap.add_argument('--verbose', '-v', action='count', dest='verbosity',
       default=1, help='increase the verbosty (can be repeated: -vvv)')
   ap.add_argument('--wordlen', '-w', action="store_true",
@@ -257,46 +251,43 @@ def try_open(filename):
       fh = codecs.open(filename, 'r', encoding=e)
       text = fh.readlines()
     except UnicodeDecodeError:
-      print('WARNING: Got unicode error with %s , trying different encoding' % e,
-             file=sys.stderr)
+      s = "Got unicode error with "+e+" trying different encoding"
+      logging.warning(s)
     else:
-      print('Opening',filename,'with encoding:  %s ' % e, file=sys.stderr)
+      s = "Opening "+filename+"with encoding: "+e
+      logging.info(s)
       break 
   return text
 
 if __name__ in  "__main__":
   ap = setup_argparse()
   args = ap.parse_args()
+  logging.basicConfig(format='%(levelname)s:%(message)s',
+                          level=50-(args.verbosity*10))
   text = try_open(args.text)
 
   #TODO convert to logging messages, synchronize with verbosity
-  print("Tokenizing, downcasing, text:",args.text,"...",end=" ", file=sys.stderr)
-  sys.stderr.flush()
+  logging.info("Tokenizing, downcasing, text: "+args.text+" ...")
   clean_text = downcase(tokenize(text))
-  print("done.", file=sys.stderr)
+  logging.info("... done.")
   # get the wordtypes and counts
-  print("Counting and sorting words in text:",args.text,"...",end="", file=sys.stderr)
-  sys.stderr.flush()
+  logging.info("Counting and sorting words in "+args.text+" ...")
   text_words = count([w for l in clean_text for w in l.split()])
-  print("done.", file=sys.stderr)
+  logging.info("... done.")
   hapax = [ w for w in text_words if text_words[w] == 1 ]
 
 
   dicts = []
   if args.dicts:
     dicts = [ try_open(f) for f in args.dicts ]
-    print("Tokenizing, downcasing, dict files:",
-          args.dicts,"...",end=" ", file=sys.stderr)
-    sys.stderr.flush()
+    logging.info("Tokenizing, downcasing, dict files:"+args.dicts+" ...")
     clean_dicts = [ downcase(tokenize(d)) for d in dicts ]
-    print("done.", file=sys.stderr)
-    print("Counting and sorting words in dictonaries:",args.dicts,"...",
-          end="", file=sys.stderr)
-    sys.stderr.flush()
+    logging.info("... done.")
+    logging.info("Counting and sorting words in dictonaries:"+args.dicts+" ...")
     dict_words = count([w for l in
                       [line for clean_d in clean_dicts for line in clean_d]
                       for w in l.split()])
-    print("done.", file=sys.stderr)
+    logging.info("... done.")
 
     # print neolo
     print("Neologism list:")
