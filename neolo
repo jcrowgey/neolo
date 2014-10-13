@@ -338,12 +338,14 @@ if __name__ in  "__main__":
       abbrevlines = try_open(args.sents)
       abbrevs = [ a.strip() for a in abbrevlines ]
     text = sent_split(text, abbrevs=abbrevs)
-    for s in text:
-      print(s)
-    print(len(text),"sentences in your text.")
 
   logging.info("Tokenizing, downcasing, text: "+args.text+" ...")
   clean_text = downcase(tokenize(text))
+  if args.sents:
+    print(len(clean_text),"sentences in your text.")
+    print("Average sentence length:",
+           sum([len(l.split()) for l in clean_text])/len(clean_text),
+           "tokens.")
   logging.info("... done.")
   # get the wordtypes and counts
   logging.info("Counting and sorting words in "+args.text+" ...")
