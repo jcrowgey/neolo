@@ -275,8 +275,16 @@ def sent_split(inlines, abbrevs=None):
 
 def setup_argparse():
   ap = argparse.ArgumentParser(
+      formatter_class=argparse.RawDescriptionHelpFormatter,
       description="Extract lexical statistics from a text file.",
-      epilog="Select one or more statistics via the above options.")
+      epilog="""Select one or more statistics via the above options.
+
+Note that some options with optional args (--sents/-s, eg) or options 
+which take lists of files (--dicts, eg) can create ambiguity parsing 
+the command line.  When using these options, it may be best to place 
+them after the name of the text you're trying to analyze:
+
+$ ./neolo mytext.txt --dicts d1.txt d2.txt -sents abbrevs.txt""")
   ap.add_argument('text', metavar="TEXT", type=str,
       help="the text you want to investigate")
   ap.add_argument('--dicts', metavar="DICT", nargs='+',
