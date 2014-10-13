@@ -19,6 +19,7 @@ import codecs
 import logging
 
 PUNC_RE = re.compile('([_+\-\(\)\.,:;!?\'"\[\]])')
+S_RE    = re.compile('[\.!?]')
 
 def lemma1(N,p):
   """return a value for p which is the sum of int(n/p^i) for all i where
@@ -214,7 +215,63 @@ def punc_ratio(text_words):
     if PUNC_RE.match(t):
       pcount+=text_words[t]
   return pcount/sum(text_words.values())
+
       
+def sent_split(inlines, abbrevs=None):
+  """join and split inlines and return outlines as 
+     one sentence per line, abbrevs is a list of non-sentence
+     splitting stings (which presumably have the relevant punc)"""
+
+
+  outlines = []
+  lcont = ''
+  for l in inlines:
+    ## if this line is empty, continue to next
+    if l.strip() == "": continue
+
+    ## protect any abbrevs by using a tag string and the abbrevs index
+    if abbrevs != None:
+      for i,a in enumerate(abbrevs):
+        while l.find(a) != -1:
+          l=l[0:l.find(a)]+"ABTAG"+str(i)+l[l.find(a)+len(a):] 
+
+    ## split the current l into groups
+    lparts = S_RE.split(l.strip())
+
+    ## see if there's more than one part
+    if len(lparts) > 1: # multi part
+
+      ## append any lcont to the first
+      lparts[0] = lcont+" "+lparts[0]
+      lcont=""
+
+      ## see if the last segment will continue to the next
+      if not S_RE.match(l.strip()[-1]):
+        outlines.extend([p.strip() for p in lparts[0:-2] if p.strip() != ''])
+        lcont=lparts[-1]
+      else: 
+        outlines.extend([p.strip() for p in lparts if p.strip() != ''])
+
+    else: # just one part here
+      ## see if this line will continue to the next
+      if not S_RE.match(l.strip()[-1]):
+        lcont=lcont+" "+l.strip()
+      else:
+        if lcont+" "+l.strip() != '':
+          outlines.append(lcont+" "+l.strip())
+
+  # go through outlines and put back strings from abtags
+  ## need regex to find \d+ not just a single d
+  if abbrevs != None:
+    ABTAG_NUM_RE=re.compile('ABTAG([0-9]+)')
+    cleanlines = []
+    for o in outlines:
+      while o.find("ABTAG") > -1:
+        i = int(ABTAG_NUM_RE.search(o).group(1))
+        o = o[0:o.find("ABTAG")]+abbrevs[i]+o[o.find("ABTAG")+5+len(str(i)):]
+      cleanlines.append(o)
+    return cleanlines 
+  else: return outlines
 
 def setup_argparse():
   ap = argparse.ArgumentParser(
@@ -239,6 +296,13 @@ def setup_argparse():
       help="print the list of hapax legomena")
   ap.add_argument('--punc-ratio', '-p', action="store_true",
       help="print the ratio of punctuation tokens out of total tokens")
+  ap.add_argument('--sents', '-s', metavar="ABBREV", const='noabbrev',
+      nargs='?',
+      help="print sentence length statistics, uses an (optional) "+\
+           "abbreviations file containing stings which don't end sentences "+\
+           "(eg: Mr.).  One abbreviaion per line, include relevant "+\
+           "punctuation.  Note that items in the abbreviations file will "+\
+           "also be protected during later tokenization.")
   return ap
 
 def try_open(filename):
@@ -266,7 +330,18 @@ if __name__ in  "__main__":
                           level=50-(args.verbosity*10))
   text = try_open(args.text)
 
-  #TODO convert to logging messages, synchronize with verbosity
+  ## if sents option, use the sent_split version of the basic text
+  if args.sents:
+    abbrevs=None
+    if args.sents!='noabbrev':
+      # open abbreviations file
+      abbrevlines = try_open(args.sents)
+      abbrevs = [ a.strip() for a in abbrevlines ]
+    text = sent_split(text, abbrevs=abbrevs)
+    for s in text:
+      print(s)
+    print(len(text),"sentences in your text.")
+
   logging.info("Tokenizing, downcasing, text: "+args.text+" ...")
   clean_text = downcase(tokenize(text))
   logging.info("... done.")
