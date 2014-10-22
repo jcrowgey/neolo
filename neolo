@@ -18,7 +18,8 @@ import argparse
 import codecs
 import logging
 
-PUNC_RE = re.compile('([_+\-\(\)\.,:;!?\'"\[\]])')
+PUNC_STR = '([_+\-\(\)\.,:;!?\'"\[\]])'
+PUNC_RE = re.compile(PUNC_STR)
 S_RE    = re.compile('[\.!?]')
 
 def lemma1(N,p):
@@ -304,10 +305,12 @@ $ ./neolo mytext.txt --dicts d1.txt d2.txt -sents abbrevs.txt""")
       help="print the list of hapax legomena")
   ap.add_argument('--punc-ratio', '-p', action="store_true",
       help="print the ratio of punctuation tokens out of total tokens")
-  ap.add_argument('--regex', '-r', metavar="REGEX", nargs=1,
-      help="""input a regular expression formatted set of charactes to split 
-away in tokenization (intended for punctuation, the internal
-default is ([_+\-\(\)\.,:;!?\'"\[\]]), which this option overrides""")
+  ap.add_argument('--no-hyphen', '-y', action="store_true",
+      help="remove the hyphen (-) from the list of punctuation symbols"+\
+           " used in tokenization")
+  ap.add_argument('--no-apostrophe', '-a', action="store_true",
+      help="remove the apostrophe (') from the list of punctuation symbols"+\
+           " used in tokenization")
   ap.add_argument('--sents', '-s', metavar="ABBREV", const='noabbrev',
       nargs='?',
       help="print sentence length statistics, uses an (optional) "+\
@@ -342,8 +345,12 @@ if __name__ in  "__main__":
                           level=50-(args.verbosity*10))
   text = try_open(args.text)
 
-  if args.regex:
-    PUNC_RE = re.compile(args.regex[0])
+  if args.no_apostrophe:
+    PUNC_STR = '([_+\-\(\)\.,:;!?"\[\]])'
+    PUNC_RE = re.compile(PUNC_STR)
+  if args.no_hyphen:
+    PUNC_STR = ''.join(PUNC_STR.split('-'))
+    PUNC_RE = re.compile(PUNC_STR)
 
   ## if sents option, use the sent_split version of the basic text
   if args.sents:
