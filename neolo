@@ -361,7 +361,7 @@ if __name__ in  "__main__":
       abbrevs = [ a.strip() for a in abbrevlines ]
     text = sent_split(text, abbrevs=abbrevs)
 
-  logging.info("Tokenizing, downcasing, text: ",args.text," ...")
+  logging.info("Tokenizing, downcasing, text: "+str(args.text)+" ...")
   clean_text = downcase(tokenize(text))
   if args.sents:
     print(len(clean_text),"sentences in your text.")
@@ -370,7 +370,7 @@ if __name__ in  "__main__":
            "tokens.")
   logging.info("... done.")
   # get the wordtypes and counts
-  logging.info("Counting and sorting words in ",args.text," ...")
+  logging.info("Counting and sorting words in "+str(args.text)+" ...")
   text_words = count([w for l in clean_text for w in l.split()])
   logging.info("... done.")
   hapax = [ w for w in text_words if text_words[w] == 1 ]
@@ -379,10 +379,10 @@ if __name__ in  "__main__":
   dicts = []
   if args.dicts:
     dicts = [ try_open(f) for f in args.dicts ]
-    logging.info("Tokenizing, downcasing, dict files:",args.dicts," ...")
+    logging.info("Tokenizing, downcasing, dict files:"+str(args.dicts)+" ...")
     clean_dicts = [ downcase(tokenize(d)) for d in dicts ]
     logging.info("... done.")
-    logging.info("Counting and sorting words in dictonaries:",args.dicts," ...")
+    logging.info("Counting and sorting words in dictonaries:"+str(args.dicts)+" ...")
     dict_words = count([w for l in
                       [line for clean_d in clean_dicts for line in clean_d]
                       for w in l.split()])
@@ -432,8 +432,11 @@ if __name__ in  "__main__":
   if args.wordtypes:
     print("\nWordtypes and frequencies (unigram model):")
     print("------------------------------------------")
-    for t in sorted(text_words.items(), key=lambda x: (-x[1],x[0])):
-      print(t[1],t[0])
+    print("(Rank,Count,Wordform)")
+    print("---------------------")
+    for i,t in enumerate(sorted(text_words.items(), 
+                                key=lambda x: (-x[1],x[0]))):
+      print(i+1,t[1],t[0])
   if args.hapax:
     print("\nHapax legomena:")
     print("----------------")
