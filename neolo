@@ -234,7 +234,7 @@ def sent_split(inlines, abbrevs=None):
     if abbrevs != None:
       for i,a in enumerate(abbrevs):
         while l.find(a) != -1:
-          l=l[0:l.find(a)]+"ABTAG"+str(i)+l[l.find(a)+len(a):] 
+          l=l[0:l.find(a)]+"#ABTAG"+str(i)+l[l.find(a)+len(a):]+"#" 
 
     ## split the current l into groups
     lparts = S_RE.split(l.strip())
@@ -264,12 +264,12 @@ def sent_split(inlines, abbrevs=None):
   # go through outlines and put back strings from abtags
   ## need regex to find \d+ not just a single d
   if abbrevs != None:
-    ABTAG_NUM_RE=re.compile('ABTAG([0-9]+)')
+    ABTAG_NUM_RE=re.compile('#ABTAG([0-9]+)')
     cleanlines = []
     for o in outlines:
-      while o.find("ABTAG") > -1:
+      while o.find("#ABTAG") > -1:
         i = int(ABTAG_NUM_RE.search(o).group(1))
-        o = o[0:o.find("ABTAG")]+abbrevs[i]+o[o.find("ABTAG")+5+len(str(i)):]
+        o = o[0:o.find("#ABTAG")]+abbrevs[i]+o[o.find("#ABTAG")+5+len(str(i)):]+"#"
       cleanlines.append(o)
     return cleanlines 
   else: return outlines
