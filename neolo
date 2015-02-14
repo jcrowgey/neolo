@@ -233,8 +233,17 @@ def sent_split(inlines, abbrevs=None):
     ## protect any abbrevs by using a tag string and the abbrevs index
     if abbrevs != None:
       for i,a in enumerate(abbrevs):
-        while l.find(a) != -1:
-          l=l[0:l.find(a)]+"#ABTAG"+str(i)+l[l.find(a)+len(a):]+"#" 
+      
+        # if a has a dot then i need to escape it
+        if a.find('.') != -1:
+          a = a[0:a.find('.')]+r'\.'+a[a.find('.')+1:]
+
+        AB_RE=re.compile(r'\b'+a)
+        while AB_RE.search(l) != None:
+          m = AB_RE.search(l)
+          print("matched for "+a+" in "+l+"at "+str(m.span()),file=sys.stderr)
+          l=l[0:m.span()[0]]+"#ABTAG"+str(i)+"#"+l[m.span()[0]+len(a)-1:]
+          print("after sub for "+a+" in "+l+"at "+str(m.span()),file=sys.stderr)
 
     ## split the current l into groups
     lparts = S_RE.split(l.strip())
@@ -264,13 +273,15 @@ def sent_split(inlines, abbrevs=None):
   # go through outlines and put back strings from abtags
   ## need regex to find \d+ not just a single d
   if abbrevs != None:
-    ABTAG_NUM_RE=re.compile('#ABTAG([0-9]+)')
+    ABTAG_NUM_RE=re.compile('#ABTAG([0-9]+)#')
     cleanlines = []
     for o in outlines:
+      print("preclean: "+o,file=sys.stderr)
       while o.find("#ABTAG") > -1:
         i = int(ABTAG_NUM_RE.search(o).group(1))
-        o = o[0:o.find("#ABTAG")]+abbrevs[i]+o[o.find("#ABTAG")+5+len(str(i)):]+"#"
+        o = o[0:o.find("#ABTAG")]+abbrevs[i]+" "+o[o.find("#ABTAG")+7+len(str(i)):]
       cleanlines.append(o)
+      print("cleaned: "+o,file=sys.stderr)
     return cleanlines 
   else: return outlines
 
