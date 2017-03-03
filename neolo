@@ -329,6 +329,8 @@ $ ./neolo mytext.txt --dicts d1.txt d2.txt -sents abbrevs.txt""")
            "(eg: Mr.).  One abbreviaion per line, include relevant "+\
            "punctuation.  Note that items in the abbreviations file will "+\
            "also be protected during later tokenization.")
+  ap.add_argument('--stemming', '-m', metavar="LANGUAGE", nargs=1,
+                  help = "stem words using NLTK prior to processing them")
   return ap
 
 def try_open(filename):
@@ -372,6 +374,17 @@ if __name__ in  "__main__":
       abbrevs = [ a.strip() for a in abbrevlines ]
     text = sent_split(text, abbrevs=abbrevs)
 
+  stemmer = lambda x: x
+  if args.stemming != None:
+    import nltk
+    stemmer_language = args.stemming[0]
+    if stemmer_language == "pt":
+      stemmer = nltk.stem.RSLPStemmer().stem
+    elif stemmer_language == "en":
+      stemmer = nltk.stem.PorterStemmer().stem
+    else:
+      print("Unsupported language: " + stemmer_language, file=sys.stderr)
+
   logging.info("Tokenizing, downcasing, text: "+str(args.text)+" ...")
   clean_text = downcase(tokenize(text))
   if args.sents:
@@ -382,10 +395,9 @@ if __name__ in  "__main__":
   logging.info("... done.")
   # get the wordtypes and counts
   logging.info("Counting and sorting words in "+str(args.text)+" ...")
-  text_words = count([w for l in clean_text for w in l.split()])
+  text_words = count([stemmer(w) for l in clean_text for w in l.split()])
   logging.info("... done.")
   hapax = [ w for w in text_words if text_words[w] == 1 ]
-
 
   dicts = []
   if args.dicts:
@@ -394,7 +406,7 @@ if __name__ in  "__main__":
     clean_dicts = [ downcase(tokenize(d)) for d in dicts ]
     logging.info("... done.")
     logging.info("Counting and sorting words in dictonaries:"+str(args.dicts)+" ...")
-    dict_words = count([w for l in
+    dict_words = count([stemmer(w) for l in
                       [line for clean_d in clean_dicts for line in clean_d]
                       for w in l.split()])
     logging.info("... done.")
