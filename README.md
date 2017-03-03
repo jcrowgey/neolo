@@ -6,7 +6,9 @@ in summer 2014.
 
 ```
 usage: neolo [-h] [--dicts DICT [DICT ...]] [--mltd] [--msttr] [--hdd]
-             [--verbose] [--wordlen] [--wordtypes] [--hapax]
+             [--verbose] [--wordlen] [--wordtypes] [--hapax] [--punc-ratio]
+             [--no-hyphen] [--no-apostrophe] [--sents [ABBREV]]
+             [--stemming LANGUAGE]
              TEXT
 
 Extract lexical statistics from a text file.
@@ -26,8 +28,21 @@ optional arguments:
   --wordtypes, -t       print the distribution of wordtypes (unigrams) by
                         count
   --hapax, -x           print the list of hapax legomena
-
-Select one or more statistics via the above options.
+  --punc-ratio, -p      print the ratio of punctuation tokens out of total
+                        tokens
+  --no-hyphen, -y       remove the hyphen (-) from the list of punctuation
+                        symbols used in tokenization
+  --no-apostrophe, -a   remove the apostrophe (') from the list of punctuation
+                        symbols used in tokenization
+  --sents [ABBREV], -s [ABBREV]
+                        print sentence length statistics, uses an (optional)
+                        abbreviations file containing stings which don't end
+                        sentences (eg: Mr.). One abbreviaion per line, include
+                        relevant punctuation. Note that items in the
+                        abbreviations file will also be protected during later
+                        tokenization.
+  --stemming LANGUAGE, -m LANGUAGE
+                        stem words using NLTK prior to processing them
 ```
 
 Neologism Count
