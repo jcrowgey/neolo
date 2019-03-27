@@ -351,7 +351,7 @@ def try_open(filename):
       break 
   return text
 
-if __name__ in  "__main__":
+def main():
   ap = setup_argparse()
   args = ap.parse_args()
   logging.basicConfig(format='%(levelname)s:%(message)s',
@@ -467,3 +467,6 @@ if __name__ in  "__main__":
       print(w)
   if args.punc_ratio:
     print("\nPunctuation ratio:",punc_ratio(text_words))
+
+if __name__ in  "__main__":
+  main()
