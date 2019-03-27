@@ -217,11 +217,10 @@ def punc_ratio(text_words):
       pcount+=text_words[t]
   return pcount/sum(text_words.values())
 
-      
 def sent_split(inlines, abbrevs=None):
   """join and split inlines and return outlines as 
      one sentence per line, abbrevs is a list of non-sentence
-     splitting stings (which presumably have the relevant punc)"""
+     splitting strings (which presumably have the relevant punc)"""
 
 
   outlines = []
@@ -233,7 +232,7 @@ def sent_split(inlines, abbrevs=None):
     ## protect any abbrevs by using a tag string and the abbrevs index
     if abbrevs != None:
       for i,a in enumerate(abbrevs):
-      
+
         # if a has a dot then i need to escape it
         if a.find('.') != -1:
           a = a[0:a.find('.')]+r'\.'+a[a.find('.')+1:]
@@ -259,7 +258,7 @@ def sent_split(inlines, abbrevs=None):
       if not S_RE.match(l.strip()[-1]):
         outlines.extend([p.strip() for p in lparts[0:-2] if p.strip() != ''])
         lcont=lparts[-1]
-      else: 
+      else:
         outlines.extend([p.strip() for p in lparts if p.strip() != ''])
 
     else: # just one part here
@@ -348,7 +347,7 @@ def try_open(filename):
     else:
       s = "Opening "+filename+"with encoding: "+e
       logging.info(s)
-      break 
+      break
   return text
 
 def main():
@@ -426,7 +425,7 @@ def main():
         "tokens in",str(len(text_words)),"types.")
 
   ## Saulo's requested default stats
-  print("Number of hapax legomena:",len(hapax))      
+  print("Number of hapax legomena:",len(hapax))
   print("TTR (type-token ratio):",float(len(text_words))/float(tokens))
   print("HTR (hapax-token ratio):",float(len(hapax))/float(tokens))
   print("HTyR (hapax-type ratio):",float(len(hapax))/float(len(text_words)))
@@ -457,7 +456,7 @@ def main():
     print("------------------------------------------")
     print("(Rank,Count,Wordform)")
     print("---------------------")
-    for i,t in enumerate(sorted(text_words.items(), 
+    for i,t in enumerate(sorted(text_words.items(),
                                 key=lambda x: (-x[1],x[0]))):
       print(i+1,t[1],t[0])
   if args.hapax:
