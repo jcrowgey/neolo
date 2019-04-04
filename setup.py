@@ -3,7 +3,7 @@ from setuptools import setup
 
 setup(
     name="neolo",
-    version="0.1.0",
+    version="0.1.1",
     description="Text Analysis Software",
     author="Joshua Crowgey",
     author_email="jcrowgey@uw.edu",

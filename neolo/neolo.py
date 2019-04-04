@@ -1,37 +1,36 @@
 #!/usr/bin/env python3
 #
-# script commissioned by Saulo
-# originally intended to identify "neologisms" in a text by
+# Script commissioned by Saulo Brandao
+# Originally intended to identify "neologisms" in a text by
 # searching through a given dictionary/wordlist/othertext
 #
-# now supports many other statistical operations as well
-#
+# Now supports many other statistical operations as well.
 
-import sys
-import re
-from collections import Counter
-from math import factorial as fact
-from math import sqrt
-from functools import reduce
-import operator
 import argparse
 import codecs
+from collections import Counter
+from functools import reduce
 import logging
+from math import sqrt
+import operator
+import re
+import sys
 
-PUNC_STR = "([_+\-\(\)\.,:;!?'\"\[\]])"
+PUNC_STR = r"([_+\-\(\)\.,:;!?'\"\[\]])"
 PUNC_RE = re.compile(PUNC_STR)
 S_RE = re.compile("[\.!?]")
 
 
 def lemma1(N, p):
-    """return a value for p which is the sum of int(n/p^i) for all i where
-  int(n/p^i) <= n"""
+    """return a value for prime p  which is the sum of int(n/p^i) for all i
+    where int(n/p^i) <= n"""
 
     v = 1
     i = 1
     tosum = []
+    _N = float(N)
     while v >= 1:
-        v = int(float(N) / float(p ** i))
+        v = int(_N / float(p ** i))
         if v < 1:
             break
         tosum.append(v)
@@ -46,8 +45,8 @@ def lemma2(X):
   We can calculate n! = p1^r1*p2^r2...pk^rk where ps are prime numbers less
   than or equal to n.  The exponent for each p is given by lemma1(n,p).
 
-  So, we will return here for X! a list of primes to be multipled.  For example,
-  X = 5.
+  So, we will return here for X! a list of primes to be multipled.  For
+  example, X = 5.
 
   1. Find primes less than or equal to 5
     erasthos(5) = [2, 3, 5]
@@ -67,6 +66,7 @@ def lemma2(X):
 
 def erathos(N):
     """Return all prime numbers <= N"""
+    assert N > 1
     if N < 2:
         return []
     lng = (N // 2) - 1 + N % 2
@@ -127,12 +127,6 @@ def product(iterable):
     return reduce(operator.mul, iterable, 1)
 
 
-def hypergeom_0(r, n, N):
-    getcontext().prec = 3
-    m = N - n
-    return Decimal(fact(m) * fact(N - r)) / Decimal(fact(N) * fact(m - r))
-
-
 def tokenize(f):
     """Tokenize all the lines in a file"""
     # TODO need a more robust, crosslingual tokenizer
@@ -154,7 +148,7 @@ def count(f):
 def chunks(l, n):
     """Yield successive n-sized chunks from l"""
     for i in range(0, len(l), n):
-        yield l[i : i + n]
+        yield l[i : i + n]  # noqa: E203
 
 
 def hdd(types):
@@ -239,60 +233,40 @@ def punc_ratio(text_words):
 
 
 def sent_split(inlines, abbrevs=None):
-    """join and split inlines and return outlines as 
+    """join and split inlines and return outlines as
      one sentence per line, abbrevs is a list of non-sentence
      splitting strings (which presumably have the relevant punc)"""
 
     outlines = []
     lcont = ""
     for l in inlines:
-        ## if this line is empty, continue to next
+        # if this line is empty, continue to next
         if l.strip() == "":
             continue
 
-        ## protect any abbrevs by using a tag string and the abbrevs index
-        if abbrevs != None:
+        # protect any abbrevs by using a tag string and the abbrevs index
+        if abbrevs is not None:
             for i, a in enumerate(abbrevs):
 
                 # if a has a dot then i need to escape it
                 if a.find(".") != -1:
-                    a = a[0 : a.find(".")] + r"\." + a[a.find(".") + 1 :]
+                    a = a.replace(".", r"\.")
 
-                AB_RE = re.compile(r"\b" + a)
-                while AB_RE.search(l) != None:
-                    m = AB_RE.search(l)
-                    print(
-                        "matched for " + a + " in " + l + "at " + str(m.span()),
-                        file=sys.stderr,
-                    )
-                    l = (
-                        l[0 : m.span()[0]]
-                        + "#ABTAG"
-                        + str(i)
-                        + "#"
-                        + l[m.span()[0] + len(a) - 1 :]
-                    )
-                    print(
-                        "after sub for "
-                        + a
-                        + " in "
-                        + l
-                        + "at "
-                        + str(m.span()),
-                        file=sys.stderr,
-                    )
+                ab_re = re.compile(r"\b" + a)
+                abtag = "#ABTAG{}#".format(i)
+                ab_re.sub(abtag, l)
 
-        ## split the current l into groups
+        # split the current l into groups
         lparts = S_RE.split(l.strip())
 
-        ## see if there's more than one part
+        # see if there's more than one part
         if len(lparts) > 1:  # multi part
 
-            ## append any lcont to the first
+            # append any lcont to the first
             lparts[0] = lcont + " " + lparts[0]
             lcont = ""
 
-            ## see if the last segment will continue to the next
+            # see if the last segment will continue to the next
             if not S_RE.match(l.strip()[-1]):
                 outlines.extend(
                     [p.strip() for p in lparts[0:-2] if p.strip() != ""]
@@ -302,7 +276,7 @@ def sent_split(inlines, abbrevs=None):
                 outlines.extend([p.strip() for p in lparts if p.strip() != ""])
 
         else:  # just one part here
-            ## see if this line will continue to the next
+            # see if this line will continue to the next
             if not S_RE.match(l.strip()[-1]):
                 lcont = lcont + " " + l.strip()
             else:
@@ -310,22 +284,21 @@ def sent_split(inlines, abbrevs=None):
                     outlines.append(lcont + " " + l.strip())
 
     # go through outlines and put back strings from abtags
-    ## need regex to find \d+ not just a single d
-    if abbrevs != None:
+    if abbrevs is not None:
         ABTAG_NUM_RE = re.compile("#ABTAG([0-9]+)#")
         cleanlines = []
         for o in outlines:
-            print("preclean: " + o, file=sys.stderr)
+            logging.info("preclean: " + o, file=sys.stderr)
             while o.find("#ABTAG") > -1:
                 i = int(ABTAG_NUM_RE.search(o).group(1))
                 o = (
-                    o[0 : o.find("#ABTAG")]
+                    o[0:o.find("#ABTAG")]
                     + abbrevs[i]
                     + " "
-                    + o[o.find("#ABTAG") + 7 + len(str(i)) :]
+                    + o[o.find("#ABTAG") + 7 + len(str(i)):]
                 )
             cleanlines.append(o)
-            print("cleaned: " + o, file=sys.stderr)
+            logging.info("cleaned: " + o, file=sys.stderr)
         return cleanlines
     else:
         return outlines
@@ -337,9 +310,9 @@ def setup_argparse():
         description="Extract lexical statistics from a text file.",
         epilog="""Select one or more statistics via the above options.
 
-Note that some options with optional args (--sents/-s, eg) or options 
-which take lists of files (--dicts, eg) can create ambiguity parsing 
-the command line.  When using these options, it may be best to place 
+Note that some options with optional args (--sents/-s, eg) or options
+which take lists of files (--dicts, eg) can create ambiguity parsing
+the command line.  When using these options, it may be best to place
 them after the name of the text you're trying to analyze:
 
 $ ./neolo mytext.txt --dicts d1.txt d2.txt -sents abbrevs.txt""",
@@ -364,7 +337,9 @@ $ ./neolo mytext.txt --dicts d1.txt d2.txt -sents abbrevs.txt""",
     ap.add_argument(
         "--msttr", action="store_true", help="mean segmental type-token ratio"
     )
-    ap.add_argument("--hdd", action="store_true", help="HD-D probabilistic TTR")
+    ap.add_argument(
+        "--hdd", action="store_true", help="HD-D probabilistic TTR"
+    )
     ap.add_argument(
         "--verbose",
         "-v",
@@ -434,7 +409,7 @@ $ ./neolo mytext.txt --dicts d1.txt d2.txt -sents abbrevs.txt""",
 
 
 def try_open(filename):
-    """Try several encodings and return the lines from the first one 
+    """Try several encodings and return the lines from the first one
      that seems to work"""
     text = ""
     encodings = ["utf-8", "latin1", "windows-1250", "windows-1252"]
@@ -460,6 +435,8 @@ def main():
     )
     text = try_open(args.text)
 
+    global PUNC_RE
+    global PUNC_STR
     if args.no_apostrophe:
         PUNC_STR = '([_+\-\(\)\.,:;!?"\[\]])'
         PUNC_RE = re.compile(PUNC_STR)
@@ -467,7 +444,7 @@ def main():
         PUNC_STR = "".join(PUNC_STR.split("-"))
         PUNC_RE = re.compile(PUNC_STR)
 
-    ## if sents option, use the sent_split version of the basic text
+    # if sents option, use the sent_split version of the basic text
     if args.sents:
         abbrevs = None
         if args.sents != "noabbrev":
@@ -476,8 +453,8 @@ def main():
             abbrevs = [a.strip() for a in abbrevlines]
         text = sent_split(text, abbrevs=abbrevs)
 
-    stemmer = lambda x: x
-    if args.stemming != None:
+    stemmer = lambda x: x  # noqa: E731
+    if args.stemming is not None:
         import nltk
 
         stemmer_language = args.stemming[0]
@@ -486,7 +463,9 @@ def main():
         elif stemmer_language == "en":
             stemmer = nltk.stem.PorterStemmer().stem
         else:
-            print("Unsupported language: " + stemmer_language, file=sys.stderr)
+            logging.warn(
+                "Unsupported language: " + stemmer_language, file=sys.stderr
+            )
 
     logging.info("Tokenizing, downcasing, text: " + str(args.text) + " ...")
     clean_text = downcase(tokenize(text))
@@ -530,7 +509,7 @@ def main():
         print("Neologism list:")
         neolo = 0
         for w in sorted(text_words):
-            if not w in dict_words:
+            if w not in dict_words:
                 print(w)
                 neolo += 1
 
@@ -541,7 +520,7 @@ def main():
         "Text size:", str(tokens), "tokens in", str(len(text_words)), "types."
     )
 
-    ## Saulo's requested default stats
+    # Saulo's requested default stats
     print("Number of hapax legomena:", len(hapax))
     print("TTR (type-token ratio):", float(len(text_words)) / float(tokens))
     print("HTR (hapax-token ratio):", float(len(hapax)) / float(tokens))
