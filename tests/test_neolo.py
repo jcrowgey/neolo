@@ -22,3 +22,19 @@ def test_lemma2():
         assert neolo.product(
             [k ** v for k, v in neolo.lemma2(i).items()]
         ) == math.factorial(i)
+
+
+def test_sent_split():
+    text = ["first sentence.", "second sentence."]
+    assert len(neolo.sent_split(text)) == 2
+
+    text = ["first sentence. second sentence."]
+    assert len(neolo.sent_split(text)) == 2
+
+    text = ["first sentence. second", "sentence."]
+    assert len(neolo.sent_split(text)) == 2
+
+    text = ["first sentence. second",
+            "sentence. third",
+            "sentence. fourth sentence."]
+    assert len(neolo.sent_split(text)) == 4

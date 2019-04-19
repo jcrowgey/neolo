@@ -269,7 +269,7 @@ def sent_split(inlines, abbrevs=None):
             # see if the last segment will continue to the next
             if not S_RE.match(l.strip()[-1]):
                 outlines.extend(
-                    [p.strip() for p in lparts[0:-2] if p.strip() != ""]
+                    [p.strip() for p in lparts[0:-1] if p.strip() != ""]
                 )
                 lcont = lparts[-1]
             else:
@@ -452,6 +452,7 @@ def main():
             abbrevlines = try_open(args.sents)
             abbrevs = [a.strip() for a in abbrevlines]
         text = sent_split(text, abbrevs=abbrevs)
+        print(text)
 
     stemmer = lambda x: x  # noqa: E731
     if args.stemming is not None:
