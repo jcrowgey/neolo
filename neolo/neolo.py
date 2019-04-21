@@ -19,7 +19,7 @@ import sys
 
 PUNC_STR = r"([_+\-\(\)\.,:;!?'\"\[\]])"
 PUNC_RE = re.compile(PUNC_STR)
-S_RE = re.compile(r"[\.!?]")
+S_RE = re.compile(r"([\.!?])")
 
 
 def lemma1(N, p):
@@ -249,7 +249,7 @@ def sent_split(inlines, abbrevs=None):
         if abbrevs is not None:
             for i, a in enumerate(abbrevs):
 
-                # if a has a dot then i need to escape it
+                # if a has a dot then I need to escape it
                 if a.find(".") != -1:
                     a = a.replace(".", r"\.")
 
@@ -258,7 +258,13 @@ def sent_split(inlines, abbrevs=None):
                 ab_re.sub(abtag, l)
 
         # split the current l into groups
-        lparts = S_RE.split(l.strip())
+        parts = S_RE.split(l.strip())
+        lparts = []
+        for i, p in enumerate(parts):
+            if i > 0 and S_RE.match(p):
+                lparts[-1] += " " + p
+            else:
+                lparts.append(p)
 
         # see if there's more than one part
         if len(lparts) > 1:  # multi part

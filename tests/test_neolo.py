@@ -38,3 +38,12 @@ def test_sent_split():
             "sentence. third",
             "sentence. fourth sentence."]
     assert len(neolo.sent_split(text)) == 4
+
+
+def test_sent_split_keep_punc():
+    """https://github.com/jcrowgey/neolo/issues/4"""
+    text = ["first sentence.", "second sentence?", "third sentence!"]
+    split = neolo.sent_split(text)
+    assert split[0][-1] == "."
+    assert split[1][-1] == "?"
+    assert split[2][-1] == "!"
