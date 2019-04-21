@@ -18,7 +18,7 @@ import sys
 
 PUNC_STR = r"([_+\-\(\)\.,:;!?'\"\[\]])"
 PUNC_RE = re.compile(PUNC_STR)
-S_RE = re.compile("[\.!?]")
+S_RE = re.compile(r"[\.!?]")
 
 
 def lemma1(N, p):
@@ -130,7 +130,7 @@ def product(iterable):
 def tokenize(f):
     """Tokenize all the lines in a file"""
     # TODO need a more robust, crosslingual tokenizer
-    return [PUNC_RE.sub(" \g<0> ", l) for l in f]
+    return [PUNC_RE.sub(r" \g<0> ", l) for l in f]
 
 
 def downcase(f):
@@ -438,7 +438,7 @@ def main():
     global PUNC_RE
     global PUNC_STR
     if args.no_apostrophe:
-        PUNC_STR = '([_+\-\(\)\.,:;!?"\[\]])'
+        PUNC_STR = r'([_+\-\(\)\.,:;!?"\[\]])'
         PUNC_RE = re.compile(PUNC_STR)
     if args.no_hyphen:
         PUNC_STR = "".join(PUNC_STR.split("-"))
