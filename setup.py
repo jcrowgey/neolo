@@ -1,9 +1,10 @@
 """Python installation definition for neolo"""
 from setuptools import setup
+from neolo import __version__
 
 setup(
     name="neolo",
-    version="0.1.1",
+    version=__version__,
     description="Text Analysis Software",
     author="Joshua Crowgey",
     author_email="jcrowgey@uw.edu",

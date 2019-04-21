@@ -12,6 +12,7 @@ from collections import Counter
 from functools import reduce
 import logging
 from math import sqrt
+from neolo import __version__
 import operator
 import re
 import sys
@@ -404,6 +405,12 @@ $ ./neolo mytext.txt --dicts d1.txt d2.txt -sents abbrevs.txt""",
         metavar="LANGUAGE",
         nargs=1,
         help="stem words using NLTK prior to processing them",
+    )
+    ap.add_argument(
+        "--version",
+        action="version",
+        version='%(prog)s {}'.format(__version__),
+        help="print version information",
     )
     return ap
 
